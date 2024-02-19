@@ -21,7 +21,7 @@ Unreal Engine 4.25 使用 FMallocBinned2 作为安卓平台默认的内存分配
 
 建议修改此分配器，而不是直接切换到使用系统malloc的FMallocAnsi，此分配器性能远超系统malloc。
 
-```c++
+```diff
 --- a/Engine/Source/Runtime/Core/Public/HAL/MallocBinned2.h
 +++ b/Engine/Source/Runtime/Core/Public/HAL/MallocBinned2.h
 @@ -89,6 +89,21 @@ extern int32 RecursionCounter;
@@ -77,7 +77,7 @@ Unreal Engine 4.25 使用 FMallocBinned2 作为安卓平台默认的内存分配
  	}
 ```
 
-```c++
+```diff
 --- a/Engine/Source/Runtime/Core/Private/HAL/MallocBinned2.cpp
 +++ b/Engine/Source/Runtime/Core/Private/HAL/MallocBinned2.cpp
 @@ -11,6 +11,34 @@
@@ -181,7 +181,7 @@ void FMallocBinned::Free(void* Ptr) {
 
 它直接使用系统的malloc()，有性能上的问题。
 
-```c++
+```diff
 --- a/Engine/Source/Runtime/Core/Private/Android/AndroidPlatformMemory.cpp
 +++ b/Engine/Source/Runtime/Core/Private/Android/AndroidPlatformMemory.cpp
 @@ -293,7 +293,11 @@ FMalloc* FAndroidPlatformMemory::BaseAllocator()
@@ -203,7 +203,7 @@ void FMallocBinned::Free(void* Ptr) {
 
 此选项会将堆栈函数指针存储到一个寄存器中，从而大大提升堆栈回溯性能，此方案是目前性能最优的方案。
 
-```c++
+```diff
 --- a/Engine/Source/Programs/UnrealBuildTool/Configuration/TargetRules.cs
 +++ b/Engine/Source/Programs/UnrealBuildTool/Configuration/TargetRules.cs
 @@ -1043,6 +1043,12 @@ namespace UnrealBuildTool
@@ -292,7 +292,7 @@ $ readelf -S file.so | grep "gnu_debugdata\|eh_frame\|debug_frame"
 
 打开编译器选项  **-finstrument-functions-after-inlining**。编译器会在 inline 优化后，为所有函数插入我们自定义的函数调用。
 
-```c++
+```diff
 --- a/Engine/Source/Programs/UnrealBuildTool/Configuration/TargetRules.cs
 +++ b/Engine/Source/Programs/UnrealBuildTool/Configuration/TargetRules.cs
 @@ -1043,6 +1043,12 @@ namespace UnrealBuildTool
